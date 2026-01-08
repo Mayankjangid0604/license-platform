@@ -1,17 +1,24 @@
+// src/server.js
 import express from "express";
-import healthRoutes from "./routes/health.routes.js";
-import adminRoutes from "./routes/admin.routes.js";
 import validateRoutes from "./routes/validate.routes.js";
+import adminRoutes from "./routes/admin.routes.js";
+import healthRoutes from "./routes/health.routes.js";
 import "./db/database.js";
 
 const app = express();
 app.use(express.json());
 
+// health (public)
 app.use("/health", healthRoutes);
-app.use("/admin", adminRoutes);   // ✅ THIS WAS MISSING
+
+// license validation (public)
 app.use("/api", validateRoutes);
 
-app.get("/", (req, res) => {
+// admin (protected by x-admin-key)
+app.use("/admin", adminRoutes);
+
+// root
+app.get("/", (_, res) => {
   res.send("Universal License Platform ONLINE");
 });
 
