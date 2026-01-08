@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS licenses (
   app_id TEXT NOT NULL,
   status TEXT NOT NULL,
   expires_at TEXT,
+  last_validated_at TEXT,     -- NEW
   created_at TEXT NOT NULL,
   FOREIGN KEY (app_id) REFERENCES apps(app_id)
 );

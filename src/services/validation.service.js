@@ -38,12 +38,19 @@ export function validateLicense({ app_id, license_key, machine_id }) {
     db.prepare(
       "INSERT INTO machines (license_key, machine_id, bound_at) VALUES (?, ?, ?)"
     ).run(license_key, machine_id, new Date().toISOString());
+    db.prepare(
+      "UPDATE licenses SET last_validated_at = ? WHERE license_key = ?"
+    ).run(new Date().toISOString(), license_key);
     return allow();
   }
 
   if (machine.machine_id !== machine_id) {
     return deny(DENY_REASON.MACHINE_MISMATCH);
   }
+
+  db.prepare(
+    "UPDATE licenses SET last_validated_at = ? WHERE license_key = ?"
+  ).run(new Date().toISOString(), license_key);
 
   return allow();
 }
