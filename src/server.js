@@ -1,15 +1,18 @@
-// src/server.js
 import express from "express";
+import validateRoutes from "./routes/validate.routes.js";
+import adminRoutes from "./routes/admin.routes.js";
 import healthRoutes from "./routes/health.routes.js";
+import "./db/database.js";
 
 const app = express();
 app.use(express.json());
 
-// REGISTER HEALTH FIRST
+// order does NOT matter now
 app.use("/health", healthRoutes);
+app.use("/api", validateRoutes);
+app.use("/admin", adminRoutes);
 
-// ROOT
-app.get("/", (req, res) => {
+app.get("/", (_, res) => {
   res.send("Universal License Platform ONLINE");
 });
 
