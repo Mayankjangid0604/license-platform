@@ -1,5 +1,5 @@
 import { db } from "../db/database.js";
-import { APP_STATUS, LICENSE_STATUS, DENY_REASON } from "../config/constants.js";
+import { APP_STATUS, LICENSE_STATUS, DENY_REASON, SERVER_ID } from "../config/constants.js";
 
 export function validateLicense({ app_id, license_key, machine_id }) {
   const app = db.prepare(
@@ -58,6 +58,7 @@ export function validateLicense({ app_id, license_key, machine_id }) {
 function allow() {
   return {
     decision: "ALLOW",
+    server_id: SERVER_ID,
     server_time: new Date().toISOString()
   };
 }
@@ -66,6 +67,7 @@ function deny(reason) {
   return {
     decision: "DENY",
     reason,
+    server_id: SERVER_ID,
     server_time: new Date().toISOString()
   };
 }
