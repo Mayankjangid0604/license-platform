@@ -43,22 +43,41 @@ router.patch("/apps/:app_id/status", (req, res) => {
 
 // Generate License
 router.post("/licenses", (req, res) => {
-  const { app_id, expires_at = null } = req.body;
-  if (!app_id) return res.status(400).json({ error: "APP_ID_REQUIRED" });
+  try {
+    const { app_id, expires_at = null } = req.body;
 
-  const license_key = nanoid(20);
+    if (!app_id) {
+      return res.status(400).json({ error: "APP_ID_REQUIRED" });
+    }
 
-  db.prepare(
-    "INSERT INTO licenses (license_key, app_id, status, expires_at, created_at) VALUES (?, ?, ?, ?, ?)"
-  ).run(
-    license_key,
-    app_id,
-    LICENSE_STATUS.ACTIVE,
-    expires_at,
-    new Date().toISOString()
-  );
+    // 🔍 verify app exists
+    const app = db
+      .prepare("SELECT app_id FROM apps WHERE app_id = ?")
+      .get(app_id);
 
-  res.json({ license_key, app_id });
+    if (!app) {
+      return res.status(400).json({ error: "APP_NOT_FOUND" });
+    }
+
+    const license_key = nanoid(20);
+
+    db.prepare(
+      `INSERT INTO licenses 
+       (license_key, app_id, status, expires_at,created_at) 
+       VALUES (?, ?, ?, ?, ?)`
+    ).run(
+      license_key,
+      app_id,
+      LICENSE_STATUS.ACTIVE,
+      expires_at,
+      new Date().toISOString()
+    );
+
+    res.json({ license_key, app_id });
+  } catch (err) {
+    console.error("LICENSE CREATE ERROR:", err);
+    res.status(500).json({ error: "INTERNAL_ERROR" });
+  }
 });
 
 // Change License Status
